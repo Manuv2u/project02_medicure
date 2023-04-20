@@ -2,12 +2,12 @@ provider "aws" {
  region = "ap-south-1"
 }
 resource "aws_instance" "k8s_server" {
- ami = "ami-03a933af70fa97ad2"
+ ami = "ami-02eb7a4783e7e9317"
  instance_type = "t2.medium"
 
 
- vpc_security_group_ids = ["sg-08290b52fa64c3be6"]
- key_name = "awsmobakey"
+ vpc_security_group_ids = ["sg-06324f2cbe37f2999"]
+ key_name = "project"
    root_block_device {
       volume_size = 20
       volume_type = "gp2"
@@ -33,7 +33,11 @@ resource "aws_instance" "k8s_server" {
  type = "ssh"
  host = self.public_ip
  user = "ubuntu"
- private_key = file("./awsmobakey.pem")
+ private_key = file("./project.pem")
  }
+  }
+output "public_ip" {
+  value = aws_instance.k8s_server.public_ip
+}
  }
 }
