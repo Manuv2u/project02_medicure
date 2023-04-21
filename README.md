@@ -9,32 +9,49 @@ Initially, Medicure is facing multiple problems, because of involved complexity 
 Following are the problems:
 
 ✓ Building Complex builds is difficult
+
 ✓ Manual efforts to test various components/modules of the project
+
 ✓ Incremental builds are difficult to manage, test and deploy
+
 ✓ Creation of infrastructure and configure it manually is very time consuming
+
 ✓ Continuous manual monitoring the application is quite challenging.
 
 In order to implement a POC, you are requested to develop a mavenized microservice using spring boot and in memory h2 database.
 
 1. a microservice which exposes below mentioned endpoints as APIs and uses in memory h2 database to store the data.
+
 a. /registerDoctor (HTTP Method : POST) (Request Body : JSON)
+
 b. /updateDoctor/{doctorRegNo} (HTTP Method : PUT ) (Request Body : JSON)
+
 c. /searchDoctor/{doctorName} (HTTP Method : GET ) ( No Request Body )
+
 d. /deletePolicy/{doctorRegNo} (HTTP Method : DELETE) ( No Request Body)
+
 2. Write necessary Junit testcase.
 3. Generate HTML report using TestNG.
-4. Push your code into your GitHub Repository.
+4.  Push your code into your GitHub Repository.
 
 Note : Preload some data into the database.
 
 Later, you need to implement Continuous Integration & Continuous Deployment using following tools:
-✓ Git - For version control for tracking changes in the code files
-✓ Jenkins - For continuous integration and continuous deployment
-✓ Docker - For containerizing applications
-✓ Ansible - Configuration management tools
-✓ Selenium - For automating tests on the deployed web application
+
+✓ Git - For version control for tracking changes in the code files.
+
+✓ Jenkins - For continuous integration and continuous deployment.
+
+✓ Docker - For containerizing applications.
+
+✓ Ansible - Configuration management tools.
+
+✓ Selenium - For automating tests on the deployed web application.
+
 ✓ Terraform - For creation of infrastructure.
+
 ✓ Kubernetes – for running containerized application in managed cluster.
+
 
 This project will be about how to test the services and deploy code to dev/stage/prod etc, just on a click of button.
 Business challenge/requirement
