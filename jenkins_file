@@ -1,64 +1,73 @@
-pipeline {
-agent any 
+pipeline{
+    agent any
+    
 tools {
-maven 'MAVEN'
-}
-
-stages {
-    stage("Git Checkout"){
-        steps{
-            git 'https://github.com/nagraj18/project-03-Medicure-healthcare-.git'
-             }
-         }
-    stage('maven build') {
-        steps {
-                sh "mvn install package"
+        maven 'maven'
+        ansible 'ansible'
+    }
+    
+    stages{
+        stage(checkoutcode){
+            steps{
+               git 'https://github.com/Manuv2u/project02_medicure.git'
+           }
+        }
+        stage(build){
+            steps{
+            sh 'mvn package install'
             }
+                
         }
-    stage('Publish HTML Report'){
-        steps{
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/workspace/Medicure_health_care/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-        }
-    } 
-    stage('Docker build image') {
-              steps {
-                  
-                  sh ' docker system prune -af '
-                  sh ' docker build -t nagaraju18/medicure_health_care:latest . '
+        stage(build_docker_image){
+            steps{
+                sh 'docker system prune -af'
+                sh 'docker build -t manuv2u/medicure:latest . '
                 }
             }
-    stage('Docker login and push') {
-              steps {
-                  withCredentials([string(credentialsId: 'docker_secret', variable: 'docker')]) {
-                  sh ' docker login -u nagaraju18 -p ${docker} '
-                  sh ' docker push nagaraju18/medicure_health_care:latest '
-                  }
-              }
+        stage(push_the_images_to_docker_hub){
+            steps{
+                withCredentials([string(credentialsId: 'docker', variable: 'dockerpass')]) {
+                    sh 'docker login -u manuv2u -p ${dockerpass}'
+                    sh 'docker push manuv2u/medicure:latest'
+                }
+            }
         }
-        stage (' setting up terraform '){
+         stage (' setting up terraform '){
             steps{
                 dir('terraform_files') {
                 sh 'terraform init'
                 sh 'terraform validate'
                 sh 'terraform apply --auto-approve'
+               /* script {
+                    def publicIp = sh(script: 'terraform output public_ip', returnStdout: true).trim()
+                    env.public_ip = publicIp
+                     sh "echo The public IP is ${env.public_ip}"
+                    parameters {
+                     string(name: 'publicIp', defaultValue: "${env.public_ip}", description: 'The public IP address')
+                     }
+                }*/
+              }
+            }
+        } 
+         
+        stage('deploy to application to kubernetes'){
+           /* environment {
+                publicIp = '${env.public_ip}'
+                 }*/
+            steps{
+                //sh "echo The public IP is ${publicIp}"
+                sh 'chmod 600 ./terraform_files/project.pem'    
+                sh 'scp -o StrictHostKeyChecking=no -i ./terraform_files/project.pem medicure_deployment.yml ubuntu@3.109.181.144:/home/ubuntu/'
+                sh 'scp -o StrictHostKeyChecking=no -i ./terraform_files/project.pem medicure_service.yml ubuntu@3.109.181.144:/home/ubuntu/'
+                script{
+                try{
+                sh 'ssh -i ./terraform_files/project.pem ubuntu@ $3.109.181.144 sudo kubectl apply -f .'
+                    }catch(error){
+                        sh 'ssh -i ./terraform_files/project.pem ubuntu@3.109.181.144 sudo kubectl apply -f .'
+                                 }
+                            }
+                        
+                    }
                 }
             }
-        }  
-       stage('deploy to application to kubernetes'){
-    steps{
-        sh ' chmod 600 ./terraform_files/awsmobakey.pem'    
-        sh ' scp -o StrictHostKeyChecking=no -i ./terraform_files/awsmobakey.pem medicure_deployment.yml ubuntu@65.2.3.21:/home/ubuntu/'
-        sh ' scp -o StrictHostKeyChecking=no -i ./terraform_files/awsmobakey.pem medicure_service.yml ubuntu@65.2.3.21:/home/ubuntu/'
-    script{
-        try{
-            sh 'ssh -i ./terraform_files/awsmobakey.pem ubuntu@65.2.3.21 kubectl apply -f .'
-            }catch(error)
-    {
-        sh 'ssh -i ./terraform_files/awsmobakey.pem ubuntu@65.2.3.21kubectl apply -f .'
-        }
-    }
-    }
-        }
-}
-            
-      } 
+    } 
