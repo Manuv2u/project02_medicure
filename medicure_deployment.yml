@@ -16,7 +16,7 @@ spec:
     spec:
        containers:
          - name: medicure
-           image: nagaraju18/medicure_health_care:latest
+           image: manuv2u/medicure:latest
            ports:
              - containerPort: 8082
                name: http-web-app-01
